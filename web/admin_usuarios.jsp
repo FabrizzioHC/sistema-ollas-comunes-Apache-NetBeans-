@@ -77,6 +77,14 @@
                                             onclick="abrirModalEditar('<%= u.getId() %>', '<%= u.getNombres() %>', '<%= u.getApellidos() %>', '<%= u.getEmail() %>', '<%= u.getTelefono() %>', '<%= u.getDni() %>', '<%= u.getRol() %>')">
                                             <i class="bi bi-pencil-square"></i> Editar
                                         </button>
+                                            <!--Eliminar-->
+                                        <form action="UsuarioControlador" method="POST" class="d-inline" onsubmit="return confirm('¿Estás seguro de eliminar este usuario? Se perderá permanentemente si no tiene registros amarrados.');">
+                                            <input type="hidden" name="accion" value="eliminarUsuarioAdmin">
+                                            <input type="hidden" name="idUsu" value="<%= u.getId() %>">
+                                            <button type="submit" class="btn btn-danger btn-sm fw-bold shadow-sm" title="Eliminar">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             <%  } 

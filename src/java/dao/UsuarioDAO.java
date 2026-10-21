@@ -219,6 +219,22 @@ public class UsuarioDAO {
         }
     }
     
+    // 11. ELIMINAR OLLA (ADMIN) ---- TEST
+    public boolean eliminarUsuarioAdmin(int idUsu) {
+        String sql = "DELETE FROM Usuario WHERE id=?";
+        try {
+            con = cn.getConnection();
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, idUsu);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error eliminarUsuarioAdmin: " + e.getMessage());
+            return false;
+        } finally {
+            cerrarConexiones();
+        }
+    }
+    
     // Método auxiliar para no repetir código de cierre
     private void cerrarConexiones() {
         try {

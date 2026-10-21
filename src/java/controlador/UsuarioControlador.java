@@ -167,5 +167,23 @@ public class UsuarioControlador extends HttpServlet {
                 response.sendRedirect("index.jsp");
             }
         }
+        
+        // FLUJO: ELIMINAR OLLA (SOLO ADMIN) ------ TEST
+        else if (accion.equalsIgnoreCase("eliminarUsuarioAdmin")) {
+            HttpSession session = request.getSession();
+            Usuario usuLogueado = (Usuario) session.getAttribute("usuarioLogueado");
+
+            if (usuLogueado != null && usuLogueado.getRol().equalsIgnoreCase("ADMIN")) {
+                int idUsu = Integer.parseInt(request.getParameter("idUsu"));
+                
+                if (dao.eliminarUsuarioAdmin(idUsu)) {
+                    response.sendRedirect("admin_usuarios.jsp?exito=true");
+                } else {
+                    response.sendRedirect("admin_usuarios.jsp?errorFk=true");
+                }
+            } else {
+                response.sendRedirect("index.jsp");
+            }
+        }
     }
 }
