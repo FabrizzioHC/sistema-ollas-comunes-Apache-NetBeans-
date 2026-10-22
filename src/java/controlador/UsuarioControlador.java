@@ -185,5 +185,37 @@ public class UsuarioControlador extends HttpServlet {
                 response.sendRedirect("index.jsp");
             }
         }
+        else if (accion.equalsIgnoreCase("agregarUsuarioAdmin")) {
+        HttpSession session = request.getSession(false);
+        Usuario admin = (session == null) ? null : (Usuario) session.getAttribute("usuarioLogueado");
+
+        if (admin == null || !"ADMIN".equalsIgnoreCase(admin.getRol())) {
+        response.sendRedirect("index.jsp");
+        return;
+        }
+
+        String nombres = request.getParameter("nombres").trim();
+        String apellidos = request.getParameter("apellidos").trim();
+        String email = request.getParameter("email").trim();
+        String dni = request.getParameter("dni").trim();
+        String telefono = request.getParameter("telefono") != null ? request.getParameter("telefono").trim() : "";
+        String rol = request.getParameter("rol").trim();
+        String password = request.getParameter("password");
+
+        Usuario nuevo = new Usuario();
+        nuevo.setNombres(nombres);
+        nuevo.setApellidos(apellidos);
+        nuevo.setEmail(email);
+        nuevo.setDni(dni);
+        nuevo.setTelefono(telefono);
+        nuevo.setRol(rol);
+        nuevo.setPasswordHash(password);
+
+        if (dao.registrarUsuario(nuevo)) {
+        response.sendRedirect("admin_usuarios.jsp?agregado=true");
+        } else {
+        response.sendRedirect("admin_usuarios.jsp?errorAgregar=true");
+        }
+        }
     }
 }

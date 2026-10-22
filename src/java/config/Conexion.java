@@ -16,7 +16,7 @@ public class Conexion {
     private Connection con;
     private static final String URL = "jdbc:mysql://localhost:3306/sistema_ollas_comunes?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
-    private static final String PASS = "abc123$";
+    private static final String PASS = "juanparis";
 
     public Connection getConnection() {
         try {
