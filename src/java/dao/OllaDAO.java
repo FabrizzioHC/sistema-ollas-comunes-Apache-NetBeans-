@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import modelo.OllaComun;
 import modelo.Recurso;
+import modelo.Usuario;
 /**
  *
  * @author FABRIZZIO
@@ -293,6 +294,82 @@ public class OllaDAO {
         }
     }
     
+
+    // NUEVO: LIDERESAS ACTIVAS QUE TODAVÍA NO TIENEN OLLA ASIGNADA
+    public List<Usuario> listarLideresasSinOlla() {
+        List<Usuario> lista = new ArrayList<>();
+        String sql = "SELECT u.id, u.nombres, u.apellidos, u.email "
+                + "FROM Usuario u WHERE u.rol = 'LIDERESA' AND u.activo = 1 "
+                + "AND NOT EXISTS (SELECT 1 FROM Olla_Comun o WHERE o.usuario_id = u.id) "
+                + "ORDER BY u.nombres, u.apellidos";
+        try (Connection conexion = cn.getConnection();
+             PreparedStatement stmt = conexion.prepareStatement(sql);
+             ResultSet resultados = stmt.executeQuery()) {
+            while (resultados.next()) {
+                Usuario lideresa = new Usuario();
+                lideresa.setId(resultados.getInt("id"));
+                lideresa.setNombres(resultados.getString("nombres"));
+                lideresa.setApellidos(resultados.getString("apellidos"));
+                lideresa.setEmail(resultados.getString("email"));
+                lista.add(lideresa);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error en listarLideresasSinOlla: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    // READ: buscar ollas comunes en MySQL por nombre, dirección, estado o beneficiarios.
+    public List<OllaComun> buscarOllasAdmin(String texto) {
+        List<OllaComun> resultado = new ArrayList<>();
+        String sql = "SELECT * FROM Olla_Comun WHERE "
+                + "nombre_olla LIKE ? OR direccion LIKE ? OR estado LIKE ? "
+                + "OR CAST(beneficiarios_atendidos AS CHAR) LIKE ? ORDER BY id DESC";
+        String patron = "%" + texto + "%";
+        try (Connection conexion = cn.getConnection();
+             PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+            for (int i = 1; i <= 4; i++) sentencia.setString(i, patron);
+            try (ResultSet rsBusqueda = sentencia.executeQuery()) {
+                while (rsBusqueda.next()) {
+                    OllaComun olla = new OllaComun();
+                    olla.setId(rsBusqueda.getInt("id"));
+                    olla.setNombreOlla(rsBusqueda.getString("nombre_olla"));
+                    olla.setDireccion(rsBusqueda.getString("direccion"));
+                    olla.setDescripcion(rsBusqueda.getString("descripcion"));
+                    olla.setBeneficiariosAtendidos(rsBusqueda.getInt("beneficiarios_atendidos"));
+                    olla.setEstado(rsBusqueda.getString("estado"));
+                    resultado.add(olla);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al buscar ollas: " + e.getMessage());
+        }
+        return resultado;
+    }
+
+    // NUEVO: REGISTRAR UNA OLLA DESDE ADMINISTRACIÓN EN MYSQL
+    public boolean registrarOllaAdmin(OllaComun olla) {
+        // Inserta solo si el usuario realmente es una lideresa activa y está sin olla.
+        String sql = "INSERT INTO Olla_Comun "
+                + "(usuario_id, nombre_olla, descripcion, direccion, beneficiarios_atendidos, estado) "
+                + "SELECT u.id, ?, ?, ?, ?, ? FROM Usuario u "
+                + "WHERE u.id = ? AND u.rol = 'LIDERESA' AND u.activo = 1 "
+                + "AND NOT EXISTS (SELECT 1 FROM Olla_Comun o WHERE o.usuario_id = u.id)";
+        try (Connection conexion = cn.getConnection();
+             PreparedStatement stmt = conexion.prepareStatement(sql)) {
+            stmt.setString(1, olla.getNombreOlla());
+            stmt.setString(2, olla.getDescripcion());
+            stmt.setString(3, olla.getDireccion());
+            stmt.setInt(4, olla.getBeneficiariosAtendidos());
+            stmt.setString(5, olla.getEstado());
+            stmt.setInt(6, olla.getUsuarioId());
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error en registrarOllaAdmin: " + e.getMessage());
+            return false;
+        }
+    }
+
     // Método auxiliar para cerrar conexiones
     private void cerrarConexiones() {
         try {
