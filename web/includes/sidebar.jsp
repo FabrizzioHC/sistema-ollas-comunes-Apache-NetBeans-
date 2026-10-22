@@ -5,6 +5,8 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="modelo.Usuario" %>
+<% Usuario usu = (Usuario) session.getAttribute("usuariologueado"); %>
 <div class="offcanvas offcanvas-start" tabindex="-1" id="menuLateral" style="width: 280px;">
     <div class="offcanvas-header border-bottom">
         <h5 class="offcanvas-title text-primary fw-bold">RedComunitaria</h5>
@@ -19,6 +21,7 @@
             <a href="admin_ollas.jsp" class="sidebar-link"><i class="bi bi-houses-fill text-primary"></i> Gestión de Ollas</a>
             <a href="admin_solicitudes.jsp" class="sidebar-link"><i class="bi bi-check-circle-fill text-success"></i> Solicitudes Pendientes</a>
             <a href="admin_donaciones.jsp" class="sidebar-link"><i class="bi bi-box-seam text-success"></i> Gestión de Donaciones</a>
+            <a href="admin_recursos.jsp" class="sidebar-link"><i class="bi bi-boxes text-warning"></i> Almacén Central</a>
         <% } %>
 
         <% if (usu.getRol().equalsIgnoreCase("DONADOR")) { %>
