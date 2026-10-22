@@ -169,6 +169,41 @@ public class UsuarioDAO {
             cerrarConexiones();
         }
     }
+    
+    // BUSCAR USUARIO POR ID
+    public Usuario buscarPorId(int id) {
+
+        Usuario usuario = null;
+
+        String sql = "SELECT * FROM Usuario WHERE id = ?";
+
+        try (Connection conexion = cn.getConnection();
+             PreparedStatement sentencia = conexion.prepareStatement(sql)) {
+
+            sentencia.setInt(1, id);
+
+            try (ResultSet resultado = sentencia.executeQuery()) {
+
+                if (resultado.next()) {
+
+                    usuario = new Usuario();
+
+                    usuario.setId(resultado.getInt("id"));
+                    usuario.setNombres(resultado.getString("nombres"));
+                    usuario.setApellidos(resultado.getString("apellidos"));
+                    usuario.setEmail(resultado.getString("email"));
+                    usuario.setDni(resultado.getString("dni"));
+                    usuario.setTelefono(resultado.getString("telefono"));
+                    usuario.setRol(resultado.getString("rol"));
+                }
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al buscar usuario: " + e.getMessage());
+        }
+
+        return usuario;
+    }
 
     // LISTAR TODOS LOS USUARIOS (Para el panel de Admin)
     public List<modelo.Usuario> listarTodos() {

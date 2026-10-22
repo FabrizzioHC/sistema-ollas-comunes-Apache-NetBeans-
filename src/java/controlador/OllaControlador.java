@@ -25,6 +25,27 @@ public class OllaControlador extends HttpServlet {
 
     OllaDAO ollaDao = new OllaDAO();
 
+    // READ: listado y búsqueda de ollas desde MySQL (sin SQL en el JSP).
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        HttpSession sesion = request.getSession(false);
+        Usuario admin = sesion == null ? null : (Usuario) sesion.getAttribute("usuarioLogueado");
+        if (admin == null || !"ADMIN".equalsIgnoreCase(admin.getRol())) {
+            response.sendRedirect("index.jsp");
+            return;
+        }
+        request.setCharacterEncoding("UTF-8");
+        String q = request.getParameter("q");
+        q = q == null ? "" : q.trim();
+        if (q.length() > 100) q = q.substring(0, 100);
+        request.setAttribute("terminoBusqueda", q);
+        request.setAttribute("listaOllas", q.isEmpty()
+                ? ollaDao.listarTodasAdmin() : ollaDao.buscarOllasAdmin(q));
+        request.setAttribute("lideresasDisponibles", ollaDao.listarLideresasSinOlla());
+        request.getRequestDispatcher("/admin_ollas.jsp").forward(request, response);
+    }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -65,6 +86,55 @@ public class OllaControlador extends HttpServlet {
             }
         }
         
+        // FLUJO: AGREGAR OLLA COMÚN (SOLO ADMIN)
+        else if (accion.equalsIgnoreCase("agregarOllaAdmin")) {
+            HttpSession session = request.getSession(false);
+            Usuario administrador = session == null ? null : (Usuario) session.getAttribute("usuarioLogueado");
+            if (administrador == null || !"ADMIN".equalsIgnoreCase(administrador.getRol())) {
+                response.sendRedirect("index.jsp");
+                return;
+            }
+
+            try {
+                String nombre = request.getParameter("nombre_olla");
+                String direccion = request.getParameter("direccion");
+                String descripcion = request.getParameter("descripcion");
+                String estado = request.getParameter("estado");
+                int lideresaId = Integer.parseInt(request.getParameter("usuario_id"));
+                int beneficiarios = Integer.parseInt(request.getParameter("beneficiarios"));
+                nombre = nombre == null ? "" : nombre.trim();
+                direccion = direccion == null ? "" : direccion.trim();
+                descripcion = descripcion == null ? "" : descripcion.trim();
+                estado = estado == null ? "" : estado.trim();
+
+                boolean estadoValido = "ACTIVA".equals(estado) || "PAUSADA".equals(estado)
+                        || "INACTIVA".equals(estado);
+                if (lideresaId <= 0 || nombre.isEmpty() || nombre.length() > 150
+                        || direccion.isEmpty() || direccion.length() > 255
+                        || descripcion.length() > 2000 || beneficiarios < 0 || beneficiarios > 1000000
+                        || !estadoValido) {
+                    response.sendRedirect("admin_ollas.jsp?errorAgregar=true");
+                    return;
+                }
+
+                OllaComun nuevaOlla = new OllaComun();
+                nuevaOlla.setUsuarioId(lideresaId);
+                nuevaOlla.setNombreOlla(nombre);
+                nuevaOlla.setDireccion(direccion);
+                nuevaOlla.setDescripcion(descripcion);
+                nuevaOlla.setBeneficiariosAtendidos(beneficiarios);
+                nuevaOlla.setEstado(estado);
+
+                if (ollaDao.registrarOllaAdmin(nuevaOlla)) {
+                    response.sendRedirect("admin_ollas.jsp?agregado=true");
+                } else {
+                    response.sendRedirect("admin_ollas.jsp?errorAgregar=true");
+                }
+            } catch (NumberFormatException e) {
+                response.sendRedirect("admin_ollas.jsp?errorAgregar=true");
+            }
+        }
+
         // FLUJO: EDITAR OLLA (SOLO ADMIN)
         else if (accion.equalsIgnoreCase("editarOllaAdmin")) {
             HttpSession session = request.getSession();
@@ -108,3 +178,4 @@ public class OllaControlador extends HttpServlet {
         }
     }
 }
+
