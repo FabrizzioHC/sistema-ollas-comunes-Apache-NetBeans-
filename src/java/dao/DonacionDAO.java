@@ -42,14 +42,11 @@ public class DonacionDAO {
         }
     }
 
-    // 2. LISTAR DONACIONES DE UN USUARIO (CON EL NOMBRE DE LA OLLA)
-    // Nota: Como Donacion no tiene "nombreOlla", usaremos el campo "mensaje" u otro truco, 
-    // pero lo ideal es crear un DTO o simplemente concatenarlo. 
-    // Para simplificar, devolveremos una lista de arreglos de Objetos o ajustamos el modelo.
-    // Vamos a usar el modelo Donacion y le seteamos el estado temporalmente modificado o creamos el join.
+    // 2. LISTAR DONACIONES DE UN USUARIO
     public List<String[]> listarMisDonaciones(int idDonador) {
         List<String[]> lista = new ArrayList<>();
-        String sql = "SELECT d.fecha_registro, o.nombre_olla, d.mensaje, d.estado " +
+        // AGREGAMOS d.id A LA CONSULTA
+        String sql = "SELECT d.id, d.fecha_registro, o.nombre_olla, d.mensaje, d.estado " +
                      "FROM Donacion d INNER JOIN Olla_Comun o ON d.olla_id = o.id " +
                      "WHERE d.donador_id = ? ORDER BY d.fecha_registro DESC";
         try {
@@ -58,11 +55,12 @@ public class DonacionDAO {
             ps.setInt(1, idDonador);
             rs = ps.executeQuery();
             while (rs.next()) {
-                String[] fila = new String[4];
-                fila[0] = rs.getString("fecha_registro");
-                fila[1] = rs.getString("nombre_olla");
-                fila[2] = rs.getString("mensaje");
-                fila[3] = rs.getString("estado");
+                String[] fila = new String[5]; // AHORA SON 5 COLUMNAS
+                fila[0] = String.valueOf(rs.getInt("id")); // Índice 0 = ID
+                fila[1] = rs.getString("fecha_registro");  // Índice 1 = Fecha
+                fila[2] = rs.getString("nombre_olla");     // Índice 2 = Olla
+                fila[3] = rs.getString("mensaje");         // Índice 3 = Mensaje/Detalle
+                fila[4] = rs.getString("estado");          // Índice 4 = Estado
                 lista.add(fila);
             }
         } catch (SQLException e) {
@@ -71,6 +69,39 @@ public class DonacionDAO {
             cerrarConexiones();
         }
         return lista;
+    }
+
+    // ACTUALIZAR MENSAJE DE DONACIÓN (DONADOR)
+    public boolean actualizarDonacion(int idDonacion, String nuevoMensaje) {
+        String sql = "UPDATE Donacion SET mensaje = ? WHERE id = ?";
+        try {
+            con = cn.getConnection();
+            ps = con.prepareStatement(sql);
+            ps.setString(1, nuevoMensaje);
+            ps.setInt(2, idDonacion);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error en actualizarDonacion: " + e.getMessage());
+            return false;
+        } finally {
+            cerrarConexiones();
+        }
+    }
+
+    // ELIMINAR/CANCELAR DONACIÓN (DONADOR)
+    public boolean eliminarDonacion(int idDonacion) {
+        String sql = "DELETE FROM Donacion WHERE id = ?";
+        try {
+            con = cn.getConnection();
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, idDonacion);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error en eliminarDonacion: " + e.getMessage());
+            return false;
+        } finally {
+            cerrarConexiones();
+        }
     }
 
     // 3. LISTAR TODAS LAS OLLAS COMUNES (Para llenar el <select> del formulario)

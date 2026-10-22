@@ -81,5 +81,42 @@ public class DonacionControlador extends HttpServlet {
                 response.sendRedirect("index.jsp");
             }
         }
+        
+        // FLUJO: ACTUALIZAR DONACIÓN (DONADOR)
+        else if (accion.equalsIgnoreCase("actualizarDonacion")) {
+            HttpSession session = request.getSession();
+            Usuario usu = (Usuario) session.getAttribute("usuarioLogueado");
+
+            if (usu != null && usu.getRol().equalsIgnoreCase("DONADOR")) {
+                int idDonacion = Integer.parseInt(request.getParameter("idDonacion"));
+                String nuevoMensaje = request.getParameter("mensaje");
+
+                if (donacionDao.actualizarDonacion(idDonacion, nuevoMensaje)) {
+                    response.sendRedirect("mis_donaciones.jsp?exito=true");
+                } else {
+                    response.sendRedirect("mis_donaciones.jsp?error=true");
+                }
+            } else {
+                response.sendRedirect("index.jsp");
+            }
+        }
+        
+        // FLUJO: ELIMINAR/CANCELAR DONACIÓN (DONADOR)
+        else if (accion.equalsIgnoreCase("eliminarDonacion")) {
+            HttpSession session = request.getSession();
+            Usuario usu = (Usuario) session.getAttribute("usuarioLogueado");
+
+            if (usu != null && usu.getRol().equalsIgnoreCase("DONADOR")) {
+                int idDonacion = Integer.parseInt(request.getParameter("idDonacion"));
+
+                if (donacionDao.eliminarDonacion(idDonacion)) {
+                    response.sendRedirect("mis_donaciones.jsp?exito=true");
+                } else {
+                    response.sendRedirect("mis_donaciones.jsp?error=true");
+                }
+            } else {
+                response.sendRedirect("index.jsp");
+            }
+        }
     }
 }
