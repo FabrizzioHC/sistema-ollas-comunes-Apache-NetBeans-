@@ -8,6 +8,7 @@
 <%@page import="modelo.Solicitud"%>
 <%@page import="dao.OllaDAO"%>
 <%@page import="modelo.Usuario"%>
+<%@page import="dao.SolicitudDAO"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
     // VALIDACIÓN: Solo el ADMIN entra aquí
@@ -17,8 +18,8 @@
         return; 
     }
 
-    OllaDAO ollaDao = new OllaDAO();
-    List<Solicitud> todasLasSolicitudes = ollaDao.listarTodasLasSolicitudes();
+    SolicitudDAO solDao = new SolicitudDAO(); // Usando el nuevo DAO
+    List<Solicitud> todasLasSolicitudes = solDao.listarTodasLasSolicitudes();
 %>
 <!DOCTYPE html>
 <html lang="es">

@@ -61,7 +61,7 @@ CREATE TABLE Donacion (
 
 CREATE TABLE recurso (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    olla_id INT NOT NULL,
+    olla_id INT NULL,
     nombre_recurso VARCHAR(100) NOT NULL,
     cantidad DECIMAL(10,2) NOT NULL,
     unidad_medida VARCHAR(20) NOT NULL,

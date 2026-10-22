@@ -21,7 +21,7 @@ public class RecursoDAO {
     // Obtener los recursos centrales (donde olla_id es NULL o 0)
     public List<Recurso> listarAlmacenGeneral() {
         List<Recurso> lista = new ArrayList<>();
-        String sql = "SELECT * FROM recursos WHERE olla_id IS NULL OR olla_id = 0";
+        String sql = "SELECT * FROM recurso WHERE olla_id IS NULL OR olla_id = 0";
         try {
             con = cn.getConnection();
             ps = con.prepareStatement(sql);
@@ -43,7 +43,7 @@ public class RecursoDAO {
     }
 
     public boolean agregarAlmacenGeneral(String nombre, double cantidad, String unidad) {
-        String sql = "INSERT INTO recursos (olla_id, nombre_recurso, cantidad, unidad_medida, fecha_actualizacion) VALUES (NULL, ?, ?, ?, CURRENT_TIMESTAMP)";
+        String sql = "INSERT INTO recurso (olla_id, nombre_recurso, cantidad, unidad_medida, fecha_actualizacion) VALUES (NULL, ?, ?, ?, CURRENT_TIMESTAMP)";
         try {
             con = cn.getConnection();
             ps = con.prepareStatement(sql);
@@ -58,7 +58,7 @@ public class RecursoDAO {
     }
 
     public boolean actualizarRecurso(int id, String nombre, double cantidad, String unidad) {
-        String sql = "UPDATE recursos SET nombre_recurso = ?, cantidad = ?, unidad_medida = ?, fecha_actualizacion = CURRENT_TIMESTAMP WHERE id = ?";
+        String sql = "UPDATE recurso SET nombre_recurso = ?, cantidad = ?, unidad_medida = ?, fecha_actualizacion = CURRENT_TIMESTAMP WHERE id = ?";
         try {
             con = cn.getConnection();
             ps = con.prepareStatement(sql);
@@ -74,7 +74,7 @@ public class RecursoDAO {
     }
 
     public boolean eliminarRecurso(int id) {
-        String sql = "DELETE FROM recursos WHERE id = ?";
+        String sql = "DELETE FROM recurso WHERE id = ?";
         try {
             con = cn.getConnection();
             ps = con.prepareStatement(sql);
