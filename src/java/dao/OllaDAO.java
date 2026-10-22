@@ -28,13 +28,11 @@ public class OllaDAO {
     public OllaComun obtenerOllaPorLideresaId(int idLideresa) {
         OllaComun olla = null;
         String sql = "SELECT * FROM Olla_Comun WHERE usuario_id = ?";
-        
         try {
             con = cn.getConnection();
             ps = con.prepareStatement(sql);
             ps.setInt(1, idLideresa);
             rs = ps.executeQuery();
-            
             if (rs.next()) {
                 olla = new OllaComun();
                 olla.setId(rs.getInt("id"));
@@ -62,7 +60,6 @@ public class OllaDAO {
             ps.setString(2, r.getNombreRecurso());
             ps.setDouble(3, r.getCantidad());
             ps.setString(4, r.getUnidadMedida());
-            
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("Error en registrarRecurso: " + e.getMessage());
@@ -76,13 +73,11 @@ public class OllaDAO {
     public List<Recurso> listarRecursosPorOlla(int ollaId) {
         List<Recurso> lista = new ArrayList<>();
         String sql = "SELECT * FROM Recurso WHERE olla_id = ? ORDER BY fecha_actualizacion DESC";
-        
         try {
             con = cn.getConnection();
             ps = con.prepareStatement(sql);
             ps.setInt(1, ollaId);
             rs = ps.executeQuery();
-            
             while (rs.next()) {
                 Recurso r = new Recurso();
                 r.setId(rs.getInt("id"));
@@ -100,119 +95,15 @@ public class OllaDAO {
         }
         return lista;
     }
-    
-    // 4. REGISTRAR UNA SOLICITUD DE AYUDA
-    public boolean registrarSolicitud(modelo.Solicitud s) {
-        String sql = "INSERT INTO Solicitud (olla_id, recurso_necesitado, cantidad_necesitada, unidad_medida, nivel_urgencia, estado) VALUES (?, ?, ?, ?, ?, ?)";
-        try {
-            con = cn.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setInt(1, s.getOllaId());
-            ps.setString(2, s.getRecursoNecesitado());
-            ps.setDouble(3, s.getCantidadNecesitada());
-            ps.setString(4, s.getUnidadMedida());
-            ps.setString(5, s.getNivelUrgencia());
-            ps.setString(6, "Pendiente"); // Toda solicitud nace en estado Pendiente
-            
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Error en registrarSolicitud: " + e.getMessage());
-            return false;
-        } finally {
-            cerrarConexiones();
-        }
-    }
 
-    // 5. LISTAR SOLICITUDES POR OLLA
-    public List<modelo.Solicitud> listarSolicitudesPorOlla(int ollaId) {
-        List<modelo.Solicitud> lista = new ArrayList<>();
-        String sql = "SELECT * FROM Solicitud WHERE olla_id = ? ORDER BY fecha_solicitud DESC";
-        
-        try {
-            con = cn.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setInt(1, ollaId);
-            rs = ps.executeQuery();
-            
-            while (rs.next()) {
-                modelo.Solicitud s = new modelo.Solicitud();
-                s.setId(rs.getInt("id"));
-                s.setOllaId(rs.getInt("olla_id"));
-                s.setRecursoNecesitado(rs.getString("recurso_necesitado"));
-                s.setCantidadNecesitada(rs.getDouble("cantidad_necesitada"));
-                s.setUnidadMedida(rs.getString("unidad_medida"));
-                s.setNivelUrgencia(rs.getString("nivel_urgencia"));
-                s.setEstado(rs.getString("estado"));
-                s.setFechaSolicitud(rs.getTimestamp("fecha_solicitud"));
-                lista.add(s);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error en listarSolicitudes: " + e.getMessage());
-        } finally {
-            cerrarConexiones();
-        }
-        return lista;
-    }
-    
-    // 6. LISTAR TODAS LAS SOLICITUDES PARA EL ADMINISTRADOR (Con el nombre de la olla)
-    public List<modelo.Solicitud> listarTodasLasSolicitudes() {
-        List<modelo.Solicitud> lista = new ArrayList<>();
-        String sql = "SELECT s.*, o.nombre_olla FROM Solicitud s INNER JOIN Olla_Comun o ON s.olla_id = o.id ORDER BY s.fecha_solicitud DESC";
-        
-        try {
-            con = cn.getConnection();
-            ps = con.prepareStatement(sql);
-            rs = ps.executeQuery();
-            
-            while (rs.next()) {
-                modelo.Solicitud s = new modelo.Solicitud();
-                s.setId(rs.getInt("id"));
-                s.setOllaId(rs.getInt("olla_id"));
-                s.setRecursoNecesitado(rs.getString("recurso_necesitado"));
-                s.setCantidadNecesitada(rs.getDouble("cantidad_necesitada"));
-                s.setUnidadMedida(rs.getString("unidad_medida"));
-                s.setNivelUrgencia(rs.getString("nivel_urgencia"));
-                s.setEstado(rs.getString("estado"));
-                s.setFechaSolicitud(rs.getTimestamp("fecha_solicitud"));
-                s.setNombreOlla(rs.getString("nombre_olla")); // Guardamos el nombre extraído del JOIN
-                lista.add(s);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error en listarTodasLasSolicitudes: " + e.getMessage());
-        } finally {
-            cerrarConexiones();
-        }
-        return lista;
-    }
-
-    // 7. CAMBIAR EL ESTADO DE UNA SOLICITUD (Aceptar o Rechazar)
-    public boolean cambiarEstadoSolicitud(int idSolicitud, String nuevoEstado) {
-        String sql = "UPDATE Solicitud SET estado = ? WHERE id = ?";
-        try {
-            con = cn.getConnection();
-            ps = con.prepareStatement(sql);
-            ps.setString(1, nuevoEstado);
-            ps.setInt(2, idSolicitud);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Error en cambiarEstadoSolicitud: " + e.getMessage());
-            return false;
-        } finally {
-            cerrarConexiones();
-        }
-    }
-
-    // 8. LISTAR TODAS LAS OLLAS PARA LA VISTA PÚBLICA
+    // 4. LISTAR TODAS LAS OLLAS PARA LA VISTA PÚBLICA
     public List<modelo.OllaComun> listarTodasLasOllasPublicas() {
         List<modelo.OllaComun> lista = new ArrayList<>();
-        // Solo mostramos las que están activas
         String sql = "SELECT * FROM Olla_Comun WHERE estado = 'ACTIVA' ORDER BY fecha_creacion DESC";
-        
         try {
             con = cn.getConnection();
             ps = con.prepareStatement(sql);
             rs = ps.executeQuery();
-            
             while (rs.next()) {
                 modelo.OllaComun olla = new modelo.OllaComun();
                 olla.setId(rs.getInt("id"));
@@ -230,7 +121,7 @@ public class OllaDAO {
         return lista;
     }
     
-    // 9. LISTAR TODAS LAS OLLAS PARA EL ADMIN (Sin filtro de estado)
+    // 5. LISTAR TODAS LAS OLLAS PARA EL ADMIN
     public List<modelo.OllaComun> listarTodasAdmin() {
         List<modelo.OllaComun> lista = new ArrayList<>();
         String sql = "SELECT * FROM Olla_Comun ORDER BY id DESC";
@@ -256,7 +147,7 @@ public class OllaDAO {
         return lista;
     }
 
-    // 10. ACTUALIZAR OLLA (ADMIN)
+    // 6. ACTUALIZAR OLLA (ADMIN)
     public boolean actualizarOllaAdmin(modelo.OllaComun olla) {
         String sql = "UPDATE Olla_Comun SET nombre_olla=?, direccion=?, descripcion=?, beneficiarios_atendidos=?, estado=? WHERE id=?";
         try {
@@ -277,7 +168,7 @@ public class OllaDAO {
         }
     }
 
-    // 11. ELIMINAR OLLA (ADMIN)
+    // 7. ELIMINAR OLLA (ADMIN)
     public boolean eliminarOllaAdmin(int idOlla) {
         String sql = "DELETE FROM Olla_Comun WHERE id=?";
         try {
@@ -293,7 +184,6 @@ public class OllaDAO {
         }
     }
     
-    // Método auxiliar para cerrar conexiones
     private void cerrarConexiones() {
         try {
             if(rs != null) rs.close();

@@ -5,7 +5,6 @@
 package controlador;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -62,54 +61,6 @@ public class OllaControlador extends HttpServlet {
                 }
             } else {
                 //lo botamos al login
-                response.sendRedirect("index.jsp");
-            }
-        }
-        
-        // FLUJO: ENVIAR SOLICITUD DE AYUDA
-        else if (accion.equalsIgnoreCase("agregarSolicitud")) {
-            HttpSession session = request.getSession();
-            Usuario usu = (Usuario) session.getAttribute("usuarioLogueado");
-
-            if (usu != null && usu.getRol().equalsIgnoreCase("LIDERESA")) {
-                
-                OllaComun olla = ollaDao.obtenerOllaPorLideresaId(usu.getId());
-
-                if (olla != null) {
-                    modelo.Solicitud s = new modelo.Solicitud();
-                    s.setOllaId(olla.getId());
-                    s.setRecursoNecesitado(request.getParameter("recursoNecesitado"));
-                    s.setCantidadNecesitada(Double.parseDouble(request.getParameter("cantidad")));
-                    s.setUnidadMedida(request.getParameter("unidadMedida"));
-                    s.setNivelUrgencia(request.getParameter("nivelUrgencia"));
-
-                    if (ollaDao.registrarSolicitud(s)) {
-                        response.sendRedirect("solicitudes.jsp?exito=true");
-                    } else {
-                        response.sendRedirect("solicitudes.jsp?error=true");
-                    }
-                }
-            } else {
-                response.sendRedirect("index.jsp");
-            }
-        }
-        
-        // FLUJO: CAMBIAR ESTADO DE SOLICITUD (ADMIN)
-        else if (accion.equalsIgnoreCase("cambiarEstadoSolicitud")) {
-            HttpSession session = request.getSession();
-            Usuario usu = (Usuario) session.getAttribute("usuarioLogueado");
-
-            // Solo el administrador puede hacer esto
-            if (usu != null && usu.getRol().equalsIgnoreCase("ADMIN")) {
-                int idSolicitud = Integer.parseInt(request.getParameter("idSolicitud"));
-                String nuevoEstado = request.getParameter("nuevoEstado");
-
-                if (ollaDao.cambiarEstadoSolicitud(idSolicitud, nuevoEstado)) {
-                    response.sendRedirect("admin_solicitudes.jsp?exito=true");
-                } else {
-                    response.sendRedirect("admin_solicitudes.jsp?error=true");
-                }
-            } else {
                 response.sendRedirect("index.jsp");
             }
         }

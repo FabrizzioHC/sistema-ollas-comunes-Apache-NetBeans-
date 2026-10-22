@@ -235,6 +235,8 @@ public class UsuarioDAO {
         }
     }
     
+    
+    
     // Método auxiliar para no repetir código de cierre
     private void cerrarConexiones() {
         try {

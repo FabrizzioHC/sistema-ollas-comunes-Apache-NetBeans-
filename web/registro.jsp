@@ -121,7 +121,7 @@
             </form>
 
             <div class="mt-4 small">
-                ¿Ya tienes cuenta? <a href="index.jsp" class="text-decoration-none">Inicia sesión aquí</a>
+                ¿Ya tienes cuenta? <a href="login.jsp" class="text-decoration-none">Inicia sesión aquí</a>
             </div>
         </div>
     </div>
