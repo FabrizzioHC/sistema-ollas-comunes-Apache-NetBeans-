@@ -59,6 +59,16 @@ CREATE TABLE Donacion (
     FOREIGN KEY (olla_id) REFERENCES Olla_Comun(id) ON DELETE CASCADE
 );
 
+CREATE TABLE recurso (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    olla_id INT NOT NULL,
+    nombre_recurso VARCHAR(100) NOT NULL,
+    cantidad DECIMAL(10,2) NOT NULL,
+    unidad_medida VARCHAR(20) NOT NULL,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (olla_id) REFERENCES Olla_Comun(id) ON DELETE CASCADE
+);
+
 
 
 -- ========================================================

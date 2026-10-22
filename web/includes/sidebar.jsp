@@ -5,8 +5,6 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="modelo.Usuario" %>
-<% Usuario usu = (Usuario) session.getAttribute("usuariologueado"); %>
 <div class="offcanvas offcanvas-start" tabindex="-1" id="menuLateral" style="width: 280px;">
     <div class="offcanvas-header border-bottom">
         <h5 class="offcanvas-title text-primary fw-bold">RedComunitaria</h5>
